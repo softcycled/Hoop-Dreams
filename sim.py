@@ -191,8 +191,8 @@ def simulate_possession(off: Team, deff: Team, quarter: int, clutch: bool) -> in
     shooter = choose_shooter(off)
 
     # Mild hot-shooting regression to reduce extreme outliers.
-    # - If team FG% > 0.54 after 20+ FGA: -0.02 to future 2PT & 3PT make%
-    # - If team 3P% > 0.45 after 12+ 3PA: additional -0.02 to future 3PT make%
+    # - If team FG% > 0.54 after 16+ FGA: -0.02 to future 2PT & 3PT make%
+    # - If team 3P% > 0.45 after 9+ 3PA: additional -0.02 to future 3PT make%
     # - Cap total penalty at 0.04.
     team_fga = sum(p.box.fga for p in off.starters)
     team_fgm = sum(p.box.fgm for p in off.starters)
@@ -201,10 +201,10 @@ def simulate_possession(off: Team, deff: Team, quarter: int, clutch: bool) -> in
 
     reg_2pt = 0.0
     reg_3pt = 0.0
-    if team_fga >= 20 and (team_fgm / max(1, team_fga)) > 0.54:
+    if team_fga >= 16 and (team_fgm / max(1, team_fga)) > 0.54:
         reg_2pt += 0.02
         reg_3pt += 0.02
-    if team_tpa >= 12 and (team_tpm / max(1, team_tpa)) > 0.45:
+    if team_tpa >= 9 and (team_tpm / max(1, team_tpa)) > 0.45:
         reg_3pt += 0.02
 
     reg_2pt = clamp(reg_2pt, 0.0, 0.04)

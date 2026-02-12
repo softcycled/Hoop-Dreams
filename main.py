@@ -18,29 +18,29 @@ def print_box(team: Team) -> None:
 
 def demo():
     home = Team(
-        "Lakers",
+        "Thunder",
         starters=[
-            Player("LeBron James", 92, 84, 78, 92, 86),
-            Player("Anthony Davis", 88, 92, 66, 84, 82),
-            Player("Austin Reaves", 76, 70, 82, 80, 80),
-            Player("Rui Hachimura", 74, 72, 78, 72, 80),
-            Player("Jarred Vanderbilt", 66, 86, 55, 72, 84),
+            Player("SGA", 93, 88, 89, 91, 89),
+            Player("Josh Giddey", 80, 70, 78, 86, 80),
+            Player("Jalen Williams", 78, 76, 80, 82, 78),
+            Player("Chet Holmgren", 84, 82, 76, 80, 78),
+            Player("Lu Dort", 68, 88, 70, 74, 80),
         ],
-        offense_coach=85,
-        defense_coach=85,
+        offense_coach=84,
+        defense_coach=86,
     )
 
     away = Team(
-        "Warriors",
+        "Nuggets",
         starters=[
-            Player("Stephen Curry", 90, 68, 96, 90, 82),
-            Player("Klay Thompson", 78, 74, 92, 78, 78),
-            Player("Andrew Wiggins", 76, 78, 78, 74, 82),
-            Player("Draymond Green", 70, 92, 60, 94, 84),
-            Player("Kevon Looney", 64, 82, 40, 78, 80),
+            Player("Nikola Jokic", 97, 82, 88, 97, 86),
+            Player("Jamal Murray", 86, 74, 86, 84, 80),
+            Player("Michael Porter Jr.", 80, 72, 92, 74, 78),
+            Player("Aaron Gordon", 76, 84, 72, 78, 86),
+            Player("KCP", 70, 82, 84, 78, 80),
         ],
-        offense_coach=85,
-        defense_coach=85,
+        offense_coach=86,
+        defense_coach=84,
     )
 
     res = simulate_game(home, away)

@@ -489,5 +489,25 @@ def simulate_game(home: Team, away: Team, pace: int = 108, bench_tax: float = 0.
             else:
                 away_pts += simulate_bench_possession(away, home, q, clutch)
 
-    return GameResult(home=home, away=away, home_pts=home_pts, away_pts=away_pts, possessions=pace)
+    # Overtime: only if tied after regulation.
+    # Requirements:
+    # - 12 total possessions per OT (6 per team)
+    # - no bench_tax reduction
+    # - clutch=True on all OT possessions
+    ot_periods = 0
+    while home_pts == away_pts:
+        ot_periods += 1
+        ot_quarter = 4 + ot_periods
+        for _ in range(6):
+            home_pts += simulate_possession(home, away, ot_quarter, True)
+            away_pts += simulate_possession(away, home, ot_quarter, True)
+
+    total_possessions = pace + ot_periods * 12
+    result = GameResult(home=home, away=away, home_pts=home_pts, away_pts=away_pts, possessions=total_possessions)
+    if ot_periods > 0:
+        # Attach simple metadata without changing the GameResult dataclass.
+        # Downstream code can read `result.meta` if it wants to display OT.
+        setattr(result, "meta", "(OT)")
+        setattr(result, "ot_periods", ot_periods)
+    return result
 

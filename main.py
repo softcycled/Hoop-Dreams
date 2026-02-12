@@ -20,7 +20,7 @@ def demo():
     home = Team(
         "Thunder",
         starters=[
-            Player("SGA", 93, 88, 89, 91, 89),
+            Player("SGA", 93, 87, 88, 90, 88),
             Player("Josh Giddey", 80, 70, 78, 86, 80),
             Player("Jalen Williams", 78, 76, 80, 82, 78),
             Player("Chet Holmgren", 84, 82, 76, 80, 78),
@@ -33,7 +33,7 @@ def demo():
     away = Team(
         "Nuggets",
         starters=[
-            Player("Nikola Jokic", 97, 82, 88, 97, 86),
+            Player("Nikola Jokic", 95, 82, 88, 96, 86),
             Player("Jamal Murray", 86, 74, 86, 84, 80),
             Player("Michael Porter Jr.", 80, 72, 92, 74, 78),
             Player("Aaron Gordon", 76, 84, 72, 78, 86),

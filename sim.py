@@ -41,11 +41,12 @@ def role_targets_for_team(team: Team):
     return targets
 
 
-def choose_shooter(team: Team):
+def choose_shooter(team: Team, quarter: int = 0):
     """
     Shooter selection = (player ability) * (role target share) with:
     - soft cap if a player exceeds their target share
     - cold-night correction: shift even more to PRIMARY when bricking
+    - superstar redistribution: boost hot star with O>=90, FGA>=20, FG%>=0.52 in Q3+
     """
     total_fga = sum(p.box.fga for p in team.starters) + 1
     total_fgm = sum(p.box.fgm for p in team.starters)
@@ -55,6 +56,24 @@ def choose_shooter(team: Team):
 
     # identify primary (highest offense)
     primary = max(team.starters, key=lambda p: p.offense)
+
+    # Takeover logic (Q3+ only): once a TRUE superstar gets hot, we allow
+    # them to temporarily exceed normal usage limits.
+    # IMPORTANT: takeover eligibility is STRICTLY gated by offense >= 90.
+    takeover_player = getattr(team, "_takeover_player", None)
+    if quarter >= 3 and takeover_player is None and not getattr(team, "_takeover_triggered", False):
+        # Find the best eligible candidate (highest offense first)
+        for p in sorted(team.starters, key=lambda pl: pl.offense, reverse=True):
+            if p.offense < 90:
+                continue
+            if p.box.fga < 20:
+                continue
+            fg_pct = p.box.fgm / p.box.fga if p.box.fga > 0 else 0.0
+            if fg_pct >= 0.52:
+                takeover_player = p
+                team._takeover_player = p
+                team._takeover_triggered = True
+                break
 
     weights = []
     for starter_index, p in enumerate(team.starters):
@@ -66,6 +85,22 @@ def choose_shooter(team: Team):
 
         # how much he's already taking
         current_share = p.box.fga / total_fga
+
+        # Takeover effect: boost ONLY the takeover player and ONLY in Q3+.
+        # This increases shot volume by raising the usage target cap and
+        # slightly suppressing teammates (volume redistribution) without
+        # affecting make%.
+        if quarter >= 3 and takeover_player is not None:
+            if p is takeover_player:
+                target = min(0.55, target + 0.22)
+            else:
+                ability *= 0.85
+
+        # Non-superstars should essentially never reach true takeover volumes.
+        # This is a volume guardrail (no make% changes) to keep 50+ games
+        # restricted to offense >= 90 players in practice.
+        if p.offense < 90 and current_share > 0.38:
+            ability *= 0.12
 
         # soft cap: if already above target, dampen strongly
         # (lets stars be stars, but forces "one ball" realism)
@@ -161,8 +196,8 @@ def simulate_possession(off: Team, deff: Team, quarter: int, clutch: bool) -> in
     # turnovers (same core idea)
     tov = (
         0.11
-        + (50 - off_iq) / 420.0
-        + (def_def - 50) / 520.0
+        + (50 - off_iq) / 620.0
+        + (def_def - 50) / 820.0
         + fatigue_pen * 0.30
         + (0.03 if clutch else 0.0)
     )
@@ -188,7 +223,7 @@ def simulate_possession(off: Team, deff: Team, quarter: int, clutch: bool) -> in
         return 0
 
     # Pick shooter FIRST (so shooter can influence 3pt tendency realistically)
-    shooter = choose_shooter(off)
+    shooter = choose_shooter(off, quarter=quarter)
 
     # Mild hot-shooting regression to reduce extreme outliers.
     # - If team FG% > 0.54 after 16+ FGA: -0.02 to future 2PT & 3PT make%
@@ -246,15 +281,21 @@ def simulate_possession(off: Team, deff: Team, quarter: int, clutch: bool) -> in
 
         make = (
             0.31
-            + (shooter.shooting - 50) / 230.0
-            + (off.offense_coach - 50) / 400.0
-            - (def_def - 50) / 310.0
-            - (deff.defense_coach - 50) / 430.0
+            + (shooter.shooting - 50) / 370.0
+            + (off.offense_coach - 50) / 630.0
+            - (def_def - 50) / 490.0
+            - (deff.defense_coach - 50) / 680.0
             - fatigue_pen * 0.30
             - attention
             + shot_quality
         )
         make -= reg_3pt
+        
+        # Soft parity dampener: reduce make% stretch based on team skill gap
+        team_gap = off_off - def_def
+        parity_factor = 1.0 - (team_gap / 450.0)
+        make *= clamp(parity_factor, 0.82, 1.10)
+        
         make = clamp(make, 0.19, 0.49)
 
         made = random.random() < make
@@ -339,9 +380,9 @@ def simulate_possession(off: Team, deff: Team, quarter: int, clutch: bool) -> in
 
     make = (
         0.46
-        + (shooter.offense - 50) / 210.0
-        + (off.offense_coach - 50) / 520.0
-        - (def_def - 50) / 290.0
+        + (shooter.offense - 50) / 340.0
+        + (off.offense_coach - 50) / 820.0
+        - (def_def - 50) / 470.0
         - fatigue_pen * 0.24
         - (0.01 if clutch else 0.0)
         + shot_quality
@@ -351,6 +392,12 @@ def simulate_possession(off: Team, deff: Team, quarter: int, clutch: bool) -> in
 
     # Rim attempts are a bit higher %; midrange a bit lower %.
     make += 0.04 if is_rim else -0.03
+    
+    # Soft parity dampener: reduce make% stretch based on team skill gap
+    team_gap = off_off - def_def
+    parity_factor = 1.0 - (team_gap / 450.0)
+    make *= clamp(parity_factor, 0.82, 1.10)
+    
     make = clamp(make, 0.24, 0.73)
 
     made = random.random() < make
@@ -448,6 +495,12 @@ def simulate_game(home: Team, away: Team, pace: int = 108, bench_tax: float = 0.
     """
     reset_box(home)
     reset_box(away)
+
+    # Initialize per-game takeover flags (only one per team per game)
+    home._takeover_triggered = False
+    away._takeover_triggered = False
+    home._takeover_player = None
+    away._takeover_player = None
 
     home_pts = 0
     away_pts = 0

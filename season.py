@@ -43,27 +43,29 @@ def print_standings(table: Dict[str, StandingsEntry], show_pf_pa: bool = False):
             print(f"{t.name:20} {t.wins:3} {t.losses:3} {win_pct:6.3f} {t.diff:6}")
 
 
-def run_season():
-    teams = make_variety_teams()
+def play_season(
+    *,
+    seed: int = 1,
+    teams=None,
+    verbose: bool = True,
+    standings_each_round: bool = True,
+    show_pf_pa: bool = False,
+) -> Dict[str, StandingsEntry]:
+    """Simulate a full round-robin season and return final standings."""
 
-    print(f"Number of teams: {len(teams)}")
+    if teams is None:
+        teams = make_variety_teams()
 
-    # Map team names to objects
     team_map = {team.name: team for team in teams}
+    rounds = generate_round_robin([t.name for t in teams], seed=seed)
 
-    # Generate 23-round schedule
-    rounds = generate_round_robin([t.name for t in teams], seed=1)
+    standings: Dict[str, StandingsEntry] = {t.name: StandingsEntry(t.name) for t in teams}
 
-    # Initialize standings
-    standings: Dict[str, StandingsEntry] = {
-        t.name: StandingsEntry(t.name) for t in teams
-    }
-
-    # Loop through each round
     for round_no, games in enumerate(rounds, start=1):
-        print(f"\n==============================")
-        print(f"ROUND {round_no}")
-        print(f"==============================")
+        if verbose:
+            print(f"\n==============================")
+            print(f"ROUND {round_no}")
+            print(f"==============================")
 
         for home_name, away_name in games:
             home = team_map[home_name]
@@ -71,10 +73,8 @@ def run_season():
 
             result = simulate_game(home, away)
 
-            # Update standings
             standings[home_name].pf += result.home_pts
             standings[home_name].pa += result.away_pts
-
             standings[away_name].pf += result.away_pts
             standings[away_name].pa += result.home_pts
 
@@ -85,9 +85,17 @@ def run_season():
                 standings[away_name].wins += 1
                 standings[home_name].losses += 1
 
-            print(f"{home_name} {result.home_pts} - {result.away_pts} {away_name}")
+            if verbose:
+                print(f"{home_name} {result.home_pts} - {result.away_pts} {away_name}")
 
-        print_standings(standings, show_pf_pa=False)
+        if verbose and standings_each_round:
+            print_standings(standings, show_pf_pa=show_pf_pa)
+
+    return standings
+
+
+def run_season():
+    play_season(seed=1, verbose=True, standings_each_round=True, show_pf_pa=False)
 
 
 if __name__ == "__main__":

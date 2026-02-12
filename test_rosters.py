@@ -25,7 +25,7 @@ def make_variety_teams() -> list[Team]:
         Team(
             "Celtics",
             starters=[
-                p("Jayson Tatum", 92, 82, 88, 88, 84),
+                p("Jayson Tatum", 90, 82, 88, 88, 84),
                 p("Jaylen Brown", 86, 78, 82, 80, 82),
                 p("Kristaps Porzingis", 82, 76, 86, 78, 78),
                 p("Derrick White", 80, 84, 80, 84, 82),
@@ -37,8 +37,8 @@ def make_variety_teams() -> list[Team]:
         Team(
             "Mavericks",
             starters=[
-                p("Luka Doncic", 94, 72, 90, 92, 82),
-                p("Kyrie Irving", 88, 66, 90, 86, 80),
+                p("Luka Doncic", 94, 78, 91, 91, 82),
+                p("Kyrie Irving", 88, 72, 90, 86, 80),
                 p("Tim Hardaway Jr.", 78, 68, 84, 76, 78),
                 p("Grant Williams", 74, 80, 74, 76, 78),
                 p("Dwight Powell", 72, 76, 60, 72, 76),
@@ -62,8 +62,8 @@ def make_variety_teams() -> list[Team]:
             "Thunder",
             starters=[
                 p("Shai Gilgeous-Alexander", 92, 88, 88, 89, 88),
-                p("Chet Holmgren", 86, 84, 78, 82, 80),
-                p("Jalen Williams", 82, 78, 80, 82, 80),
+                p("Chet Holmgren", 86, 82, 82, 82, 80),
+                p("Jalen Williams", 82, 84, 80, 82, 80),
                 p("Josh Giddey", 78, 70, 76, 84, 80),
                 p("Lu Dort", 74, 88, 70, 74, 82),
             ],
@@ -75,8 +75,8 @@ def make_variety_teams() -> list[Team]:
         Team(
             "Lakers",
             starters=[
-                p("LeBron James", 90, 82, 76, 92, 80),
-                p("Anthony Davis", 85, 92, 66, 84, 78),
+                p("LeBron James", 89, 80, 76, 92, 80),
+                p("Anthony Davis", 84, 91, 66, 84, 78),
                 p("Austin Reaves", 80, 72, 84, 82, 80),
                 p("Rui Hachimura", 76, 74, 80, 74, 78),
                 p("D'Angelo Russell", 82, 68, 86, 80, 76),
@@ -147,7 +147,7 @@ def make_variety_teams() -> list[Team]:
         Team(
             "Spurs",
             starters=[
-                p("Victor Wembanyama", 88, 94, 80, 86, 82),
+                p("Victor Wembanyama", 87, 94, 80, 86, 82),
                 p("Devin Vassell", 82, 70, 84, 78, 80),
                 p("Keldon Johnson", 80, 70, 80, 76, 78),
                 p("Jeremy Sochan", 76, 78, 70, 76, 80),
@@ -173,7 +173,7 @@ def make_variety_teams() -> list[Team]:
         Team(
             "Clippers",
             starters=[
-                p("Kawhi Leonard", 84, 90, 82, 86, 80),
+                p("Kawhi Leonard", 86, 90, 82, 86, 80),
                 p("Paul George", 82, 84, 84, 84, 80),
                 p("Russell Westbrook", 76, 72, 66, 80, 78),
                 p("Ivica Zubac", 76, 82, 60, 74, 76),
@@ -197,7 +197,7 @@ def make_variety_teams() -> list[Team]:
         Team(
             "Knicks",
             starters=[
-                p("Jalen Brunson", 88, 66, 86, 86, 84),
+                p("Jalen Brunson", 91, 66, 86, 86, 84),
                 p("Julius Randle", 82, 72, 74, 76, 82),
                 p("RJ Barrett", 78, 70, 78, 78, 80),
                 p("Mitchell Robinson", 72, 88, 25, 70, 80),
